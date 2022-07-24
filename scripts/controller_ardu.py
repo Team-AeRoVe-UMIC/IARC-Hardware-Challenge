@@ -222,10 +222,14 @@ class Flight_controller:
         PS.pose.orientation.y = self.set_ori_y
         PS.pose.orientation.z = self.set_ori_z
         PS.pose.orientation.w = self.set_ori_w
-        # print(PS)
+        #print(PS)
 
         distance = math.sqrt((self.set_x - self.curr_x)**2 + (self.set_y - self.curr_y)**2 + (self.set_z - self.curr_z)**2)
-
+        while(((self.curr_yaw - self.set_yaw))**2 > self.delta_yaw):
+            #print('angli',self.curr_yaw,self.set_yaw)
+            self.publish_pose.publish(PS)
+            self.get_pose_subscriber
+            update_rate.sleep()
         while (distance > self.delta):
             #print(distance)
             self.publish_pose.publish(PS)
@@ -233,11 +237,7 @@ class Flight_controller:
             distance = math.sqrt((self.set_x - self.curr_x)**2 + (self.set_y - self.curr_y)**2 + (self.set_z - self.curr_z)**2)
             update_rate.sleep()
         # print('correcting yaw')
-        while(((self.curr_yaw - self.set_yaw))**2 > self.delta_yaw):
-            #print(self.curr_yaw,self.set_yaw)
-            self.publish_pose.publish(PS)
-            self.get_pose_subscriber
-            update_rate.sleep()
+
 
         self.waypoint_number += 1
         rospy.loginfo('Waypoint reached: ' + str(self.waypoint_number))
@@ -303,13 +303,15 @@ class Flight_controller:
         self.set_pose()
 
     def test_control(self):
+        self.set_offboard_mode()
         self.toggle_arm(True)
+        sleep(1)
         self.takeoff(2.0)
 
-        self.set_offboard_mode()
-        self.move_to(3,0,2.5)
-        self.move_to(0, -2, 2.5)
-        sleep(2)
+        #self.set_offboard_mode()
+        # self.move_to(3,0,2.5)
+        # self.move_to(0, -2, 2.5)
+        sleep(5)
 
     def calculate_fv(self):
         angle = self.curr_yaw - self.mast_yaw

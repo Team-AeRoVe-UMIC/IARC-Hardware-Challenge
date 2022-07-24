@@ -100,7 +100,7 @@ if __name__ == '__main__':
     # ic.takeoff(5)
     # sleep(1.5)
     mast=[-4.98675,5]
-    to_go=[-8,0]
+    to_go=[-4,2,0]
     to_yaw= math.degrees(math.atan2((mast[1]-to_go[1]),(mast[0]-to_go[0])))
     print('to_yaw = ',to_yaw) 
     ic.set_orientation(0,0,to_yaw)
@@ -121,10 +121,10 @@ if __name__ == '__main__':
                 print('mast angle : ',ic.mast_angle)
                 if ic.mast_sense < 0:
                     clockwise = True
-                    dx,dy=-0.5,0
+                    dx,dy=-0.3,0
                 else:
                     clockwise = False
-                    dx,dy=0.5,0
+                    dx,dy=0.3,0
                 # print('mast angle = '+str(ic.mast_angle))
                 
                 
@@ -199,34 +199,5 @@ if __name__ == '__main__':
             #     r.sleep()
 
         else:
-            
-            #radius=2*math.sqrt((ic.curr_x-mast[0])**2 + (ic.curr_y-mast[1])**2)
-            print('radius =',radius)
-            print('mast not detected')
-        
-            dx,dy= -1,0
 
-            #dyaw = math.degrees(math.atan2(1,radius))  #d_yaw_cal(ic.mast_xyz)
-            #print(dyaw)
-            yaw = math.radians(ic.curr_yaw) # get the current yaw of the drone
-            rotation_matrix = np.array([[math.cos(yaw),math.sin(yaw)],[-math.sin(yaw),math.cos(yaw)]])
-
-            new_dx, new_dy = np.matmul(rotation_matrix, np.array([dx, dy]))
-            
-            #ic.d_yaw(dyaw=dyaw)
-            # ic.pub_next_pose()
-
-            ic.move_wrtDrone_fixedaxis(new_dy, new_dx, 0) 
-            to_yaw= math.degrees(math.atan2((mast[1]-(ic.curr_x)),(mast[0]-(ic.curr_y))))
-            print(to_yaw)
-            ic.set_orientation(0,0,to_yaw)          
-            ic.pub_next_pose()
-
-
-            #ic.set_pose()
-
-            rate.sleep()
-
-
-
-            #pass
+            pass

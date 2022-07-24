@@ -58,6 +58,10 @@ def tracker_yolo(camera, tiny = False):
     plane_segmentation = plane_client(full_cloud = True)
     print('CV loaded to be used')
     print('getting started')
+    size = camera.img_bgr_left[...,::-1].shape[:2]
+    result = cv2.VideoWriter('bag bag 2.avi', 
+                         cv2.VideoWriter_fourcc(*'MJPG'),
+                         10, (size[1], size[0]))
     while True:
         t0 = time()
         bgr = np.array(camera.img_bgr_left[...,::-1]).copy()
@@ -68,8 +72,10 @@ def tracker_yolo(camera, tiny = False):
             x1_new = int((2*x1 + x2)/3)
             x2_new = int((x1 + 2*x2)/3)
 
-            y1_new = int((5*y1 + y2)/6)
-            y2_new = int((4*y1 + 2*y2)/6)
+            y2_new = int((y1 + 5*y2)/6)
+            y1_new = int((2*y1 + 4*y2)/6)
+
+            yolo_out = cv2.rectangle(yolo_out ,(int(x1_new),int(y1_new)),(int(x2_new),int(y2_new)),(0,255,255),3)
 
             # out = plane_segmentation(depth, camera.depth_data.height, camera.depth_data.width,camera.cx, 
             # camera.cy, camera.fx, camera.fy,int(x1) - 400,int(y1)-30,int(x2)+500,int(y2)+400, debug = True, find_plane = False)
@@ -84,7 +90,7 @@ def tracker_yolo(camera, tiny = False):
             if out[0]:
                 if out[1].if_found:
                     xyz, angle, sense = calc(out[1])
-                    TO.pub(1, xyz, angle, sense)
+                    TO.pub(1, xyz, angle, sense)  
                     print("The angle is:",angle)
                     print("Sense is:", sense)
                 else:
@@ -132,13 +138,78 @@ def tracker_yolo(camera, tiny = False):
             #     TO.pub(0, xyz, angle, sense)
             
             #print(xyz)
+  
+            
+                
+            # # Capture frames in the video
+            # ret, frame = cap.read()
+        
+            # # describe the type of font
+            # # to be used.
+
+            # dimensions of video
+            # img = cv2.imread(yolo_out,0)
+            
 
             
 
-            cv2.imshow('YOLO output', yolo_out)
+            #truncating xyz co-ordinates to 2 decimal places
+            for i in range(len(xyz)):
+                xyz[i] = round(xyz[i], 2)
+            sense=round(sense,2)
+            angle=round(angle,2)
+
+            font = cv2.FONT_HERSHEY_SIMPLEX
+        
+            # Use putText() method for
+            # inserting text on video
+            cv2.putText(yolo_out, 
+                        str(sense), 
+                        (50, 50), 
+                        font, 1, 
+                        (0, 0, 255), 
+                        2, 
+                        cv2.LINE_4)
+
+            cv2.putText(yolo_out, 
+                        str(angle), 
+                        (50, 100), 
+                        font, 1, 
+                        (0, 0, 255), 
+                        2, 
+                        cv2.LINE_4)
+
+
+            cv2.putText(yolo_out, 
+                        str(xyz), 
+                        (50, 150), 
+                        font, 1, 
+                        (0, 0, 255), 
+                        2, 
+                        cv2.LINE_4)
+            
+            
+            # out.write(yolo_out)
+        
+            # Display the resulting frame
+            cv2.imshow('YOLO Output', yolo_out)
+            result.write(yolo_out)
+        
             
         else:
-            cv2.imshow('YOLO output', bgr)
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            cv2.putText(bgr, 
+                        "Not Detected", 
+                        (50, 50), 
+                        font, 1, 
+                        (0, 0, 255), 
+                        2, 
+                        cv2.LINE_4)
+            cv2.imshow('YOLO Output', bgr)
+            result.write(bgr)
+
+        
+
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
         t1 = time()
